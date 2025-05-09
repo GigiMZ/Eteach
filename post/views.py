@@ -1,16 +1,21 @@
 from rest_framework import generics
 from .serializer import PostSerializer, CommentSerializer, TagSerializer
-from django.contrib.auth.models import User
 from .models import Post, Comment, Tag
+from .permissions import CreateEditPermission
+
 from django.db.models import F
 
 
 class PostListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = [CreateEditPermission]
+
     serializer_class = PostSerializer
     queryset = Post.objects.all()
 
 
 class PostRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [CreateEditPermission]
+
     serializer_class = PostSerializer
     queryset = Post.objects.all()
 
@@ -23,20 +28,28 @@ class PostRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class CommentListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = [CreateEditPermission]
+
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
 
 
 class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [CreateEditPermission]
+
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
 
 
 class TagListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = [CreateEditPermission]
+
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
 
 
 class TagRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [CreateEditPermission]
+
     serializer_class = TagSerializer
     queryset = Tag.objects.all()

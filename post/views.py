@@ -1,6 +1,5 @@
 from rest_framework import generics
 from .serializer import PostSerializer, CommentSerializer, TagSerializer
-from django.contrib.auth.models import User
 from .models import Post, Comment, Tag
 from django.db.models import F
 

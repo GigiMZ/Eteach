@@ -29,7 +29,7 @@ class Comment(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     vote_up = models.PositiveIntegerField(default=0)
     vote_down = models.PositiveIntegerField(default=0)
-    post = models.ForeignKey(Post, null=True, blank=True, related_name="comments", on_delete=models.CASCADE) # TODO null/blank
+    post = models.ForeignKey(Post, related_name="comments", on_delete=models.CASCADE) # TODO null/blank
     comment = models.ForeignKey(
         'self',
         null=True,

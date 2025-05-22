@@ -19,7 +19,7 @@ class UserModelAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ("User's info", {
-            'fields':('username', 'email', ('first_name', 'last_name'), 'new_password', 'age', 'profile_image_display', 'profile_pic')
+            'fields': ('username', 'email', ('first_name', 'last_name'), 'new_password', 'age', 'profile_image_display', 'profile_pic')
         }),
         ('Status', {
             'fields': (('is_active', 'is_staff', 'is_superuser'))

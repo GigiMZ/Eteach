@@ -18,7 +18,7 @@ class Post(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True, validators=[validators.tag_validator])
-    posts = models.ManyToManyField(Post, blank=True)
+    posts = models.ManyToManyField(Post, blank=True, related_name='tags')
 
     def __str__(self): return self.name
 

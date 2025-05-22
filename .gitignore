@@ -2,9 +2,10 @@
 *.pot
 *.pyc
 venv
-__pycache__
 db.sqlite3
+__pycache__
 migrations
+media
 
 *.bak
 .env

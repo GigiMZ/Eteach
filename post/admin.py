@@ -6,17 +6,21 @@ from .models import Post, Comment, Tag
 
 class CommentInline(admin.TabularInline):
     model = Comment
-    readonly_fields = ['author', 'content', 'comment', 'vote_up', 'vote_down', 'date']
+    readonly_fields = ['author', 'content_link', 'comment', 'vote_up', 'vote_down', 'date']
     extra = 0
+
+    def content_link(self, obj):
+        link = reverse("admin:post_comment_change", args=[obj.comment.id])
+        return format_html('<a href="{}">{}</a>', link, obj.comment)
 
 @admin.register(Post)
 class PostAdminModel(admin.ModelAdmin):
     list_display = ['title', 'author_link', 'post_tags', 'date', 'views', 'vote_up', 'vote_down']
 
-    readonly_fields = ['post_image_display', 'views']
+    readonly_fields = ['post_image_display', 'views', 'post_tags']
     fieldsets = (
         ("Post", {
-            'fields': ('author', 'title', 'content', 'post_image_display', 'image', ('vote_up', 'vote_down'), 'views')
+            'fields': ('author', 'title', 'content', 'post_image_display', 'image', ('vote_up', 'vote_down'), 'views', 'post_tags')
         }),
     )
 
@@ -37,7 +41,7 @@ class PostAdminModel(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdminModel(admin.ModelAdmin):
-    list_display = ['author', 'content_text', 'date', 'vote_up', 'vote_down']
+    list_display = ['author', 'content_text', 'post_link', 'date', 'vote_up', 'vote_down']
 
     fieldsets = (
         ("Comment", {
@@ -48,6 +52,10 @@ class CommentAdminModel(admin.ModelAdmin):
     def content_text(self, obj):
         if len(obj.content) > 15: return obj.content[:15]+"..."
         return obj.content[:15]
+
+    def post_link(self, obj):
+        link = reverse("admin:post_post_change", args=[obj.post.id])
+        return format_html('<a href="{}">{}</a>', link, obj.post)
 
     content_text.short_description = 'content'
 

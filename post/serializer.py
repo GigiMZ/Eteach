@@ -51,15 +51,22 @@ class DetailPostSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     comment = serializers.SerializerMethodField()
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'content', 'comment', 'vote_up', 'vote_down']
+        fields = ['id', 'author', 'content', 'comment', 'vote_up', 'vote_down', 'date']
         read_only_fields = ['date']
 
     def get_comment(self, obj):
         return CommentSerializer(obj.comment).data
 
 class TagSerializer(serializers.ModelSerializer):
+    posts = serializers.SlugRelatedField(
+        many=True,
+        read_only=True,
+        slug_field='title'
+    )
+
     class Meta:
         model = Tag
-        fields = '__all__'
+        fields = ['id', 'name', 'posts']

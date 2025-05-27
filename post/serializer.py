@@ -52,10 +52,11 @@ class DetailPostSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     comment = serializers.SerializerMethodField()
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    date = serializers.DateTimeField(read_only=True)
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'content', 'comment', 'vote_up', 'vote_down', 'date']
-        read_only_fields = ['date']
+        fields = ['id', 'author', 'content', 'comment', 'vote_up', 'vote_down', 'post', 'date']
 
     def get_comment(self, obj):
         return CommentSerializer(obj.comment).data

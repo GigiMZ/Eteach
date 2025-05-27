@@ -1,4 +1,4 @@
-from .models import User
+from .models import Post
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 
@@ -6,13 +6,16 @@ import os
 from dotenv import load_dotenv
 
 
-@receiver(post_delete, sender=User)
+@receiver(post_delete, sender=Post)
 def delete_prof_pic(sender, instance, **kwargs):
     load_dotenv()
-    pic = instance.profile_pic
+    pic = instance.image
+    if not pic:
+        print("No picture to Delete.")
+        return
     dir = os.getenv("DIR")
-    if pic != 'profile/default_S.jpg': os.remove(f'{dir}\\media\\{pic}')
+    os.remove(f'{dir}\\media\\{pic}')
     if not os.path.exists(f'{dir}\\media\\{pic}'):
         print("Deleted successfully!")
         return
-    print("Not Deleted or default.")
+    print("Couldn't Delete.")

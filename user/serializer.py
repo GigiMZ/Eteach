@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User
+# TODO create serializer class for DetailUser
 
 
 class UserSerializer(serializers.ModelSerializer):

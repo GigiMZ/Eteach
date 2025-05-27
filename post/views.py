@@ -1,21 +1,22 @@
 from rest_framework import generics
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .serializer import PostSerializer, DetailPostSerializer, CommentSerializer, TagSerializer
 from .models import Post, Comment, Tag
-from .permissions import CreateEditPermission
+from .permissions import CreatePermission, EditPermission
 from django.db.models import F
 
 
 class PostListCreateAPIView(generics.ListCreateAPIView):
-    permission_classes = [CreateEditPermission]
+    permission_classes = [CreatePermission]
 
     serializer_class = PostSerializer
     queryset = Post.objects.all()
 
 
 class PostRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [CreateEditPermission]
+    permission_classes = [EditPermission]
 
     serializer_class = DetailPostSerializer
     queryset = Post.objects.all()
@@ -28,6 +29,7 @@ class PostRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
         return super().get(request, *args, **kwargs)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def post_up_vote(request, pk, *args, **kwargs):
     post = Post.objects.get(pk=pk)
     post.vote_up = F('vote_up') + 1
@@ -35,6 +37,7 @@ def post_up_vote(request, pk, *args, **kwargs):
     return Response({'message': 'success'}, status=200)
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def post_down_vote(request, pk, *args, **kwargs):
     post = Post.objects.get(pk=pk)
     post.vote_down = F('vote_down') + 1
@@ -43,28 +46,28 @@ def post_down_vote(request, pk, *args, **kwargs):
 
 
 class CommentListCreateAPIView(generics.ListCreateAPIView):
-    permission_classes = [CreateEditPermission]
+    permission_classes = [CreatePermission]
 
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
 
 
 class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [CreateEditPermission]
+    permission_classes = [EditPermission]
 
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
 
 
 class TagListCreateAPIView(generics.ListCreateAPIView):
-    permission_classes = [CreateEditPermission]
+    permission_classes = [CreatePermission]
 
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
 
 
 class TagRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [CreateEditPermission]
+    permission_classes = [IsAdminUser]
 
     serializer_class = TagSerializer
     queryset = Tag.objects.all()

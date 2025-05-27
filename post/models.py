@@ -18,7 +18,7 @@ class Post(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True, validators=[validators.tag_validator])
-    posts = models.ManyToManyField(Post, blank=True)
+    posts = models.ManyToManyField(Post, blank=True, related_name='tags')
 
     def __str__(self): return self.name
 
@@ -29,7 +29,7 @@ class Comment(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     vote_up = models.PositiveIntegerField(default=0)
     vote_down = models.PositiveIntegerField(default=0)
-    post = models.ForeignKey(Post, related_name="comments", on_delete=models.CASCADE) # TODO null/blank
+    post = models.ForeignKey(Post, related_name="comments", on_delete=models.CASCADE)
     comment = models.ForeignKey(
         'self',
         null=True,

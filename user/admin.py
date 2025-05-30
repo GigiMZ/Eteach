@@ -21,6 +21,9 @@ class UserModelAdmin(admin.ModelAdmin):
         ("User's info", {
             'fields': ('username', 'email', ('first_name', 'last_name'), 'new_password', 'age', 'profile_image_display', 'profile_pic')
         }),
+        ("Posts", {
+            'fields': (('up_voted_posts','down_voted_posts'), ('up_voted_comments','down_voted_comments'),)
+        }),
         ('Status', {
             'fields': (('is_active', 'is_staff', 'is_superuser'))
         }),

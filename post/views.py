@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .serializer import PostSerializer, DetailPostSerializer, CommentSerializer, TagSerializer
 from .models import Post, Comment, Tag
+from user.models import User
 from .permissions import CreatePermission, EditPermission
 from django.db.models import F
 
@@ -32,16 +33,50 @@ class PostRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 @permission_classes([IsAuthenticated])
 def post_up_vote(request, pk, *args, **kwargs):
     post = Post.objects.get(pk=pk)
+    if post in request.user.up_voted_posts.all() or post in request.user.down_voted_posts.all():
+        return Response({'message': 'Already voted.'}, status=403)
     post.vote_up = F('vote_up') + 1
     post.save()
+    user = User.objects.get(pk=request.user.id)
+    user.up_voted_posts.add(post)
+    user.save()
     return Response({'message': 'success'}, status=200)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def post_down_vote(request, pk, *args, **kwargs):
     post = Post.objects.get(pk=pk)
+    if post in request.user.down_voted_posts.all() or post in request.user.up_voted_posts.all():
+        return Response({'message': 'Already voted.'}, status=403)
     post.vote_down = F('vote_down') + 1
     post.save()
+    user = User.objects.get(pk=request.user.id)
+    user.down_voted_posts.add(post)
+    user.save()
+    return Response({'message': 'success'}, status=200)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def post_up_vote_remove(request, pk, *args, **kwargs): # TODO clean it
+    post = Post.objects.get(pk=pk)
+    if post not in request.user.up_voted_posts.all():  return Response({'message': 'Invalid Operation.'}, status=403)
+    post.vote_up = F('vote_up') - 1
+    post.save()
+    user = User.objects.get(pk=request.user.id)
+    user.up_voted_posts.remove(post)
+    user.save()
+    return Response({'message': 'success'}, status=200)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def post_down_vote_remove(request, pk, *args, **kwargs): # TODO clean it
+    post = Post.objects.get(pk=pk)
+    if post not in request.user.down_voted_posts.all():  return Response({'message': 'Invalid Operation.'}, status=403)
+    post.vote_down = F('vote_down') - 1
+    post.save()
+    user = User.objects.get(pk=request.user.id)
+    user.down_voted_posts.remove(post)
+    user.save()
     return Response({'message': 'success'}, status=200)
 
 
@@ -57,6 +92,57 @@ class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
 
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def comment_up_vote(request, pk, *args, **kwargs):
+    comment = Comment.objects.get(pk=pk)
+    if comment in request.user.up_voted_comments.all() or comment in request.user.down_voted_comments.all():
+        return Response({'message': 'Already voted.'}, status=403)
+    comment.vote_up = F('vote_up') + 1
+    comment.save()
+    user = User.objects.get(pk=request.user.id)
+    user.up_voted_comments.add(comment)
+    user.save()
+    return Response({'message': 'success'}, status=200)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def comment_down_vote(request, pk, *args, **kwargs):
+    comment = Comment.objects.get(pk=pk)
+    comment.vote_down = F('vote_down') + 1
+    comment.save()
+    if comment in request.user.up_voted_comments.all() or comment in request.user.down_voted_comments.all():
+        return Response({'message': 'Already voted.'}, status=403)
+    user = User.objects.get(pk=request.user.id)
+    user.down_voted_comments.add(comment)
+    user.save()
+    return Response({'message': 'success'}, status=200)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def comment_up_vote_remove(request, pk, *args, **kwargs): # TODO clean it
+    comment = Comment.objects.get(pk=pk)
+    if comment not in request.user.up_voted_comments.all():  return Response({'message': 'Invalid Operation.'}, status=403)
+    comment.vote_up = F('vote_up') - 1
+    comment.save()
+    user = User.objects.get(pk=request.user.id)
+    user.up_voted_comments.remove(comment)
+    user.save()
+    return Response({'message': 'success'}, status=200)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def comment_down_vote_remove(request, pk, *args, **kwargs): # TODO clean it
+    comment = Comment.objects.get(pk=pk)
+    if comment not in request.user.down_voted_comments.all():  return Response({'message': 'Invalid Operation.'}, status=403)
+    comment.vote_down = F('vote_down') - 1
+    comment.save()
+    user = User.objects.get(pk=request.user.id)
+    user.down_voted_comments.remove(comment)
+    user.save()
+    return Response({'message': 'success'}, status=200)
 
 
 class TagListCreateAPIView(generics.ListCreateAPIView):

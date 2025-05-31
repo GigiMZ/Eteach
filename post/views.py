@@ -2,11 +2,12 @@ from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from .serializer import PostSerializer, DetailPostSerializer, CommentSerializer, TagSerializer
+from .serializer import PostSerializer, DetailPostSerializer, CommentSerializer, DetailCommentSerializer, TagSerializer
 from .models import Post, Comment, Tag
 from user.models import User
 from .permissions import CreatePermission, EditPermission
 from django.db.models import F
+from django.shortcuts import get_object_or_404
 
 
 class PostListCreateAPIView(generics.ListCreateAPIView):
@@ -84,13 +85,21 @@ class CommentListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [CreatePermission]
 
     serializer_class = CommentSerializer
-    queryset = Comment.objects.all()
+
+    def get_queryset(self):
+        post_id = self.kwargs.get('pos_pk')
+        return Comment.objects.filter(post_id=post_id, comment=None)
+
+    def perform_create(self, serializer):
+        post_id = self.kwargs.get('pos_pk')
+        print(post_id)
+        serializer.save(post_id=post_id)
 
 
 class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [EditPermission]
 
-    serializer_class = CommentSerializer
+    serializer_class = DetailCommentSerializer
     queryset = Comment.objects.all()
 
 

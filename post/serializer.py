@@ -1,3 +1,4 @@
+from django.template.context_processors import request
 from rest_framework import serializers
 from .models import Comment, Post, Tag
 
@@ -50,16 +51,34 @@ class DetailPostSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    comment = serializers.SerializerMethodField()
-    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
+    class PostsComments(serializers.PrimaryKeyRelatedField):
+        def get_queryset(self):
+            return Comment.objects.filter(post_id=self.context.get('view').kwargs['pos_pk'])
+
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    parrent_comment = PostsComments(source='comment', write_only=True, allow_null=True)
+    replies = serializers.SerializerMethodField(source='comment')
+
+    vote_up = serializers.IntegerField(read_only=True)
+    vote_down = serializers.IntegerField(read_only=True)
     date = serializers.DateTimeField(read_only=True)
+
     class Meta:
         model = Comment
-        fields = ['id', 'author', 'content', 'comment', 'vote_up', 'vote_down', 'post', 'date']
+        fields = ['id', 'author', 'content', 'replies', 'parrent_comment', 'vote_up', 'vote_down', 'date']
 
-    def get_comment(self, obj):
-        return CommentSerializer(obj.comment).data
+    def get_replies(self, obj):
+        return CommentSerializer(instance=obj.replies, many=True).data
+
+
+class DetailCommentSerializer(serializers.ModelSerializer):
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    replies = serializers.SerializerMethodField(source='comment')
+    class Meta:
+        model = Comment
+        fields = ['id', 'author', 'content', 'replies', 'vote_up', 'vote_down', 'date']
+
 
 class TagSerializer(serializers.ModelSerializer):
     posts = serializers.SlugRelatedField(

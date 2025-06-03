@@ -7,7 +7,6 @@ from .models import Post, Comment, Tag
 from user.models import User
 from .permissions import CreatePermission, EditPermission
 from django.db.models import F
-from django.shortcuts import get_object_or_404
 
 
 class PostListCreateAPIView(generics.ListCreateAPIView):
@@ -92,9 +91,7 @@ class CommentListCreateAPIView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         post_id = self.kwargs.get('pos_pk')
-        print(post_id)
         serializer.save(post_id=post_id)
-
 
 class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [EditPermission]
@@ -102,11 +99,10 @@ class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView)
     serializer_class = DetailCommentSerializer
     queryset = Comment.objects.all()
 
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def comment_up_vote(request, pk, *args, **kwargs):
-    comment = Comment.objects.get(pk=pk)
+def comment_up_vote(request, com_pk, *args, **kwargs):
+    comment = Comment.objects.get(pk=com_pk)
     if comment in request.user.up_voted_comments.all() or comment in request.user.down_voted_comments.all():
         return Response({'message': 'Already voted.'}, status=403)
     comment.vote_up = F('vote_up') + 1
@@ -118,8 +114,8 @@ def comment_up_vote(request, pk, *args, **kwargs):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def comment_down_vote(request, pk, *args, **kwargs):
-    comment = Comment.objects.get(pk=pk)
+def comment_down_vote(request, com_pk, *args, **kwargs):
+    comment = Comment.objects.get(pk=com_pk)
     comment.vote_down = F('vote_down') + 1
     comment.save()
     if comment in request.user.up_voted_comments.all() or comment in request.user.down_voted_comments.all():
@@ -131,8 +127,8 @@ def comment_down_vote(request, pk, *args, **kwargs):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def comment_up_vote_remove(request, pk, *args, **kwargs): # TODO clean it
-    comment = Comment.objects.get(pk=pk)
+def comment_up_vote_remove(request, com_pk, *args, **kwargs): # TODO clean it
+    comment = Comment.objects.get(pk=com_pk)
     if comment not in request.user.up_voted_comments.all():  return Response({'message': 'Invalid Operation.'}, status=403)
     comment.vote_up = F('vote_up') - 1
     comment.save()
@@ -143,8 +139,8 @@ def comment_up_vote_remove(request, pk, *args, **kwargs): # TODO clean it
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def comment_down_vote_remove(request, pk, *args, **kwargs): # TODO clean it
-    comment = Comment.objects.get(pk=pk)
+def comment_down_vote_remove(request, com_pk, *args, **kwargs): # TODO clean it
+    comment = Comment.objects.get(pk=com_pk)
     if comment not in request.user.down_voted_comments.all():  return Response({'message': 'Invalid Operation.'}, status=403)
     comment.vote_down = F('vote_down') - 1
     comment.save()

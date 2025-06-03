@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from .serializer import PostSerializer, DetailPostSerializer, CommentSerializer, TagSerializer
+from .serializer import PostSerializer, DetailPostSerializer, CommentSerializer, DetailCommentSerializer, TagSerializer
 from .models import Post, Comment, Tag
 from user.models import User
 from .permissions import CreatePermission, EditPermission
@@ -84,20 +84,25 @@ class CommentListCreateAPIView(generics.ListCreateAPIView):
     permission_classes = [CreatePermission]
 
     serializer_class = CommentSerializer
-    queryset = Comment.objects.all()
 
+    def get_queryset(self):
+        post_id = self.kwargs.get('pos_pk')
+        return Comment.objects.filter(post_id=post_id, comment=None)
+
+    def perform_create(self, serializer):
+        post_id = self.kwargs.get('pos_pk')
+        serializer.save(post_id=post_id)
 
 class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [EditPermission]
 
-    serializer_class = CommentSerializer
+    serializer_class = DetailCommentSerializer
     queryset = Comment.objects.all()
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def comment_up_vote(request, pk, *args, **kwargs):
-    comment = Comment.objects.get(pk=pk)
+def comment_up_vote(request, com_pk, *args, **kwargs):
+    comment = Comment.objects.get(pk=com_pk)
     if comment in request.user.up_voted_comments.all() or comment in request.user.down_voted_comments.all():
         return Response({'message': 'Already voted.'}, status=403)
     comment.vote_up = F('vote_up') + 1
@@ -109,8 +114,8 @@ def comment_up_vote(request, pk, *args, **kwargs):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def comment_down_vote(request, pk, *args, **kwargs):
-    comment = Comment.objects.get(pk=pk)
+def comment_down_vote(request, com_pk, *args, **kwargs):
+    comment = Comment.objects.get(pk=com_pk)
     comment.vote_down = F('vote_down') + 1
     comment.save()
     if comment in request.user.up_voted_comments.all() or comment in request.user.down_voted_comments.all():
@@ -122,8 +127,8 @@ def comment_down_vote(request, pk, *args, **kwargs):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def comment_up_vote_remove(request, pk, *args, **kwargs): # TODO clean it
-    comment = Comment.objects.get(pk=pk)
+def comment_up_vote_remove(request, com_pk, *args, **kwargs): # TODO clean it
+    comment = Comment.objects.get(pk=com_pk)
     if comment not in request.user.up_voted_comments.all():  return Response({'message': 'Invalid Operation.'}, status=403)
     comment.vote_up = F('vote_up') - 1
     comment.save()
@@ -134,8 +139,8 @@ def comment_up_vote_remove(request, pk, *args, **kwargs): # TODO clean it
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def comment_down_vote_remove(request, pk, *args, **kwargs): # TODO clean it
-    comment = Comment.objects.get(pk=pk)
+def comment_down_vote_remove(request, com_pk, *args, **kwargs): # TODO clean it
+    comment = Comment.objects.get(pk=com_pk)
     if comment not in request.user.down_voted_comments.all():  return Response({'message': 'Invalid Operation.'}, status=403)
     comment.vote_down = F('vote_down') - 1
     comment.save()

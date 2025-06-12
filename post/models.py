@@ -12,6 +12,7 @@ class Post(models.Model):
     views = models.PositiveIntegerField(default=0)
     vote_up = models.PositiveIntegerField(default=0)
     vote_down = models.PositiveIntegerField(default=0)
+    archived = models.BooleanField(default=False, blank=True)
 
     def __str__(self): return self.title
 

@@ -38,14 +38,20 @@ class UserAdminForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # TODO 💀
-        self.fields['up_voted_posts'].queryset = Post.objects.all()
-        self.fields['down_voted_posts'].queryset = Post.objects.all()
-        self.fields['up_voted_comments'].queryset = Comment.objects.all()
-        self.fields['down_voted_comments'].queryset = Comment.objects.all()
-        self.fields['up_voted_posts'].initial = self.instance.up_voted_posts.all()
-        self.fields['up_voted_posts'].initial = self.instance.down_voted_posts.all()
-        self.fields['up_voted_comments'].initial = self.instance.up_voted_comments.all()
-        self.fields['down_voted_comments'].initial = self.instance.down_voted_comments.all()
+        if self.instance.id:
+            self.fields['up_voted_posts'].queryset = Post.objects.all()
+            self.fields['down_voted_posts'].queryset = Post.objects.all()
+            self.fields['up_voted_comments'].queryset = Comment.objects.all()
+            self.fields['down_voted_comments'].queryset = Comment.objects.all()
+            self.fields['up_voted_posts'].initial = self.instance.up_voted_posts.all()
+            self.fields['up_voted_posts'].initial = self.instance.down_voted_posts.all()
+            self.fields['up_voted_comments'].initial = self.instance.up_voted_comments.all()
+            self.fields['down_voted_comments'].initial = self.instance.down_voted_comments.all()
+        else:
+            self.fields['up_voted_posts'].queryset = Post.objects.all()
+            self.fields['down_voted_posts'].queryset = Post.objects.all()
+            self.fields['up_voted_comments'].queryset = Comment.objects.all()
+            self.fields['down_voted_comments'].queryset = Comment.objects.all()
 
     def save(self, commit=True):
         res = super().save(commit)

@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import Comment, Post, Tag
-# TODO fix get_comments()
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -39,7 +38,7 @@ class DetailPostSerializer(serializers.ModelSerializer):
         extra_kwargs = {'tags': {'write_only': True}}
 
     def get_comments(self, obj):
-        return CommentSerializer(instance=obj.comments, many=True).data
+        return CommentSerializer(instance=obj.comments.filter(comment_id=None), many=True).data
 
     def get_tag_names(self, obj):
         return [tag['name']for tag in TagSerializer(instance=obj.tags, many=True).data]

@@ -38,4 +38,19 @@ class Comment(models.Model):
         related_name='replies'
     )
 
-    def __str__(self): return self.content[:20]
+    def __str__(self):
+        if len(str(self.content)) > 20: return f'{self.content[:20]}...'
+        return self.content
+
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=70, unique=True)
+    posts = models.ManyToManyField(Post, related_name='categories')
+    parent_category = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subcategories',
+                                       null=True, blank=True)
+
+    def __str__(self): return self.name
+
+    class Meta:
+        verbose_name_plural = 'categories'

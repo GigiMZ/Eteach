@@ -5,7 +5,7 @@ from django.contrib.admin import widgets
 
 
 class UserAdminForm(forms.ModelForm):
-    new_password = forms.CharField(widget=forms.PasswordInput(), required=False)
+    password = forms.CharField(widget=forms.PasswordInput(), required=False)
 
     up_voted_posts = forms.ModelMultipleChoiceField(
         widget=widgets.FilteredSelectMultiple('Up Voted Posts', False),
@@ -27,9 +27,10 @@ class UserAdminForm(forms.ModelForm):
         queryset=Comment.objects.all(),
         required=False
     )
+
     class Meta:
         model = User
-        fields = ['username', 'email', 'new_password', 'first_name', 'last_name', 'age',
+        fields = ['username', 'email', 'password', 'first_name', 'last_name', 'age',
                 'profile_pic', 'up_voted_posts', 'down_voted_posts', 'up_voted_comments',
                 'down_voted_comments', 'is_active', 'is_staff', 'is_superuser', 'groups',
                 'user_permissions', 'last_login', 'date_joined']

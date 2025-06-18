@@ -47,7 +47,7 @@ class Comment(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=70, unique=True)
-    posts = models.ManyToManyField(Post, related_name='categories')
+    posts = models.ManyToManyField(Post, related_name='categories', null=True, blank=True)
     parent_category = models.ForeignKey('self', on_delete=models.CASCADE, related_name='subcategories',
                                        null=True, blank=True)
 

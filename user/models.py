@@ -10,3 +10,4 @@ class User(AbstractUser):
     down_voted_posts = models.ManyToManyField(Post, related_name="users_down_voted", blank=True)
     up_voted_comments = models.ManyToManyField(Comment, related_name="users_up_voted", blank=True)
     down_voted_comments = models.ManyToManyField(Comment, related_name="users_down_voted", blank=True)
+    following = models.ManyToManyField('self', symmetrical=False, related_name='followers')

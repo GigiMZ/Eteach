@@ -6,7 +6,7 @@ from .forms import UserAdminForm
 
 @admin.register(User)
 class UserModelAdmin(admin.ModelAdmin):
-    list_display = ['username', 'email', 'age', 'is_active', 'is_staff', 'is_superuser']
+    list_display = ['username', 'age', 'private', 'is_active', 'is_staff', 'is_superuser']
     search_fields = ['email', 'username']
     list_filter = ['is_active', 'is_staff', 'is_superuser']
 
@@ -16,7 +16,8 @@ class UserModelAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ("User's info", {
-            'fields': ('username', 'email', ('first_name', 'last_name'), 'new_password', 'age', 'profile_image_display', 'profile_pic')
+            'fields': ('username', 'email', ('first_name', 'last_name'), 'new_password', 'age', 'private',
+                       'profile_image_display', 'profile_pic')
         }),
         ("Followers", {
             'fields': (('following', 'followers'),)

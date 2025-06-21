@@ -1,11 +1,12 @@
 from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from .models import User
+from post.models import Post
 from .serializer import UserSerializer
-from .permissions import UserEditPermission, UserCreatePermission
-
+from post.serializer import PostSerializer
+from .permissions import UserEditPermission, UserCreatePermission, PrivateUserPermission, UserPostPermission
 
 
 class UserListCreateAPIView(generics.ListCreateAPIView):
@@ -16,7 +17,7 @@ class UserListCreateAPIView(generics.ListCreateAPIView):
 
 
 class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [UserEditPermission]
+    permission_classes = [UserEditPermission, PrivateUserPermission]
 
     serializer_class = UserSerializer
     queryset = User.objects.all()
@@ -39,3 +40,13 @@ def follow_user(request, pk, *args, **kwargs):
 
     user.following.add(selected_user)
     return Response({'message': 'success'}, status=200)
+
+
+class UserPostListAPIView(generics.ListAPIView):
+    permission_classes = [UserPostPermission]
+
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+
+    def get_queryset(self):
+        return Post.objects.filter(author_id=self.kwargs.get('pk'))

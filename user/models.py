@@ -4,6 +4,7 @@ from post.models import Post, Comment
 
 
 class User(AbstractUser):
+    private = models.BooleanField(default=False)
     age = models.PositiveIntegerField(default=0)
     profile_pic = models.ImageField(default="profile/default_S.jpg", blank=True, upload_to="profile/")
     up_voted_posts = models.ManyToManyField(Post, related_name="users_up_voted", blank=True)

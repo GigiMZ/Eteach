@@ -63,8 +63,6 @@ class UserAdminForm(forms.ModelForm):
             self.fields['down_voted_comments'].initial = self.instance.down_voted_comments.all()
             self.fields['following'].initial = self.instance.following.all()
             self.fields['followers'].initial = methods.get_followers(self.instance)
-            print(methods.get_followers(self.instance))
-            print(f'zangi{self.instance.following.all()}')
         else:
             self.fields['up_voted_posts'].queryset = Post.objects.all()
             self.fields['down_voted_posts'].queryset = Post.objects.all()

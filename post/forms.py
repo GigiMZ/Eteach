@@ -22,7 +22,11 @@ class PostAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.fields['tags'].queryset = Tag.objects.all()
-        self.fields['categories'].queryset = Category.objects.all()
-        self.fields['tags'].initial = self.instance.tags.all()
-        self.fields['categories'].initial = self.instance.categories.all()
+        if self.instance.id:
+            self.fields['tags'].queryset = Tag.objects.all()
+            self.fields['categories'].queryset = Category.objects.all()
+            self.fields['tags'].initial = self.instance.tags.all()
+            self.fields['categories'].initial = self.instance.categories.all()
+        else:
+            self.fields['tags'].queryset = Tag.objects.all()
+            self.fields['categories'].queryset = Category.objects.all()

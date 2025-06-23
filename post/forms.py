@@ -1,6 +1,7 @@
 from django import forms
-from .models import Post, Comment, Tag, Category
 from django.contrib.admin import widgets
+
+from .models import Post, Tag, Category
 
 
 class PostAdminForm(forms.ModelForm):

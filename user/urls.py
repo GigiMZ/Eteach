@@ -9,4 +9,5 @@ urlpatterns = [
     path('users/<int:pk>/follow', views.follow_user),
     path('users/<int:pk>/posts', views.UserPostListAPIView.as_view()),
     path('users/<int:user_pk>/posts/<int:pk>/', post_views.PostRetrieveUpdateDestroyAPIView.as_view()),
+    path('register', views.Register.as_view())
 ]

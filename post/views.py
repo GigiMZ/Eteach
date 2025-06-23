@@ -2,10 +2,13 @@ from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+
 from .serializer import PostSerializer, DetailPostSerializer, CommentSerializer, DetailCommentSerializer, TagSerializer
 from .models import Post, Comment, Tag
 from user.models import User
 from .permissions import CreatePermission, EditPermission
+from .methods import get_posts
+
 from django.db.models import F
 
 
@@ -15,12 +18,18 @@ class PostListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = PostSerializer
     queryset = Post.objects.all()
 
+    def get_queryset(self):
+        return get_posts(self.request.user)
 
-class PostRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+
+class PostRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateAPIView):
     permission_classes = [EditPermission]
 
     serializer_class = DetailPostSerializer
     queryset = Post.objects.all()
+
+    def get_queryset(self):
+        return get_posts(self.request.user)
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:

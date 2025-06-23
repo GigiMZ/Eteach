@@ -1,6 +1,7 @@
-from .models import Post
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
+
+from .models import Post
 
 import os
 from dotenv import load_dotenv

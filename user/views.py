@@ -1,12 +1,12 @@
 from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import User
 from post.models import Post
-from .serializer import UserSerializer, RegisterSerializer
+from .serializer import UserSerializer, DetailUserSerializer, RegisterSerializer
 from post.serializer import PostSerializer
-from .permissions import (UserEditPermission, UserCreatePermission, PrivateUserPermission, UserPostPermission,
+from .permissions import (UserCreatePermission, PrivateUserPermission, UserPostPermission,
                           RegisterPermission)
 
 
@@ -17,10 +17,10 @@ class UserListCreateAPIView(generics.ListCreateAPIView):
     queryset = User.objects.all()
 
 
-class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [UserEditPermission, PrivateUserPermission]
+class UserRetrieveUpdateDestroyAPIView(generics.RetrieveAPIView):
+    permission_classes = [PrivateUserPermission]
 
-    serializer_class = UserSerializer
+    serializer_class = DetailUserSerializer
     queryset = User.objects.all()
 
 @api_view(['POST'])

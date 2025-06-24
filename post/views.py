@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .serializer import PostSerializer, DetailPostSerializer, CommentSerializer, DetailCommentSerializer, TagSerializer
 from .models import Post, Comment, Tag
 from user.models import User
-from .permissions import CreatePermission, EditPermission
+from .permissions import CreatePermission, EditPermission, ListCommentPermission, DetailCommentPermission
 from .methods import get_posts
 
 from django.db.models import F
@@ -88,7 +88,7 @@ def post_down_vote(request, pk, *args, **kwargs):
 
 
 class CommentListCreateAPIView(generics.ListCreateAPIView):
-    permission_classes = [CreatePermission]
+    permission_classes = [CreatePermission, ListCommentPermission]
 
     serializer_class = CommentSerializer
 
@@ -101,13 +101,13 @@ class CommentListCreateAPIView(generics.ListCreateAPIView):
         serializer.save(post_id=post_id)
 
 class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [EditPermission]
+    permission_classes = [EditPermission, DetailCommentPermission]
 
     serializer_class = DetailCommentSerializer
     queryset = Comment.objects.all()
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, DetailCommentPermission])
 def comment_up_vote(request, com_pk, *args, **kwargs):
     undo = request.data.get('undo')
     comment = Comment.objects.get(pk=com_pk)
@@ -131,7 +131,7 @@ def comment_up_vote(request, com_pk, *args, **kwargs):
     return Response({'message': 'success'}, status=200)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, DetailCommentPermission])
 def comment_down_vote(request, com_pk, *args, **kwargs):
     undo = request.data.get('undo')
     comment = Comment.objects.get(pk=com_pk)

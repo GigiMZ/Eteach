@@ -24,6 +24,7 @@ class UserRetrieveUpdateDestroyAPIView(generics.RetrieveAPIView):
     serializer_class = DetailUserSerializer
     queryset = User.objects.all()
 
+# follow function for users/<id>/follow
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def follow_user(request, pk, *args, **kwargs):

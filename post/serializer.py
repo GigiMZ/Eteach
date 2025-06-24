@@ -4,7 +4,7 @@ from .models import Comment, Post, Tag
 
 
 class PostSerializer(serializers.ModelSerializer):
-    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    author = serializers.CharField( read_only=True, default=serializers.CurrentUserDefault())
     date = serializers.DateTimeField(read_only=True)
     vote_up = serializers.IntegerField(read_only=True)
     vote_down = serializers.IntegerField(read_only=True)
@@ -19,7 +19,7 @@ class PostSerializer(serializers.ModelSerializer):
                   'date', 'vote_up', 'vote_down', 'views']
         extra_kwargs  = {'tags': {'write_only': True}}
 
-    def get_tag_names(self, obj):
+    def get_tag_names(self, obj) -> list[str]:
         return [tag['name']for tag in TagSerializer(instance=obj.tags, many=True).data]
 
 

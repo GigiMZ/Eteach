@@ -1,4 +1,5 @@
 from rest_framework import permissions
+
 from .models import User
 
 
@@ -19,9 +20,7 @@ class UserCreatePermission(permissions.BasePermission):
 class PrivateUserPermission(permissions.BasePermission):
     message = 'This account is private.'
     def has_object_permission(self, request, view, obj):
-        print("usrr")
         if request.method in permissions.SAFE_METHODS:
-            print("usr23r")
             return not obj.private or request.user in obj.following.all() or request.user.is_superuser
         return True
 
@@ -32,3 +31,9 @@ class UserPostPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         user = User.objects.get(pk=view.kwargs.get('pk'))
         return not user.private or request.user in user.following.all() or request.user.is_superuser
+
+
+class RegisterPermission(permissions.BasePermission):
+    message = "You are logged in."
+    def has_permission(self, request, view):
+        return not request.user.is_authenticated

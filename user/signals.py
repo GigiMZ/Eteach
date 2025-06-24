@@ -1,8 +1,9 @@
-from .models import User
-from post.models import Post, Comment
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.db.models import F
+
+from .models import User
+from post.models import Post, Comment
 
 import os
 from dotenv import load_dotenv
@@ -28,7 +29,6 @@ def post_archive_comments_delete(sender, instance, **kwargs):
     # deleting comments
     for comment in Comment.objects.filter(author=instance):
         comment.delete()
-    print('yez')
 
 @receiver(post_delete, sender=User)
 def vote_remove(sender, instance, **kwargs):
@@ -36,4 +36,3 @@ def vote_remove(sender, instance, **kwargs):
     instance.down_voted_posts.all().vote_down = F('vote_down') - 1
     instance.up_voted_comments.all().vote_up = F('vote_up') - 1
     instance.down_voted_comments.all().vote_down = F('vote_down') - 1
-    print('hello')

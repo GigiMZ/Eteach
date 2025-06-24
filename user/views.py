@@ -1,12 +1,14 @@
 from rest_framework import generics
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
 from .models import User
 from post.models import Post
-from .serializer import UserSerializer
+from .serializer import UserSerializer, DetailUserSerializer, RegisterSerializer
 from post.serializer import PostSerializer
-from .permissions import UserEditPermission, UserCreatePermission, PrivateUserPermission, UserPostPermission
+from .permissions import (UserCreatePermission, PrivateUserPermission, UserPostPermission,
+                          RegisterPermission)
 
 
 class UserListCreateAPIView(generics.ListCreateAPIView):
@@ -16,10 +18,10 @@ class UserListCreateAPIView(generics.ListCreateAPIView):
     queryset = User.objects.all()
 
 
-class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [UserEditPermission, PrivateUserPermission]
+class UserRetrieveUpdateDestroyAPIView(generics.RetrieveAPIView):
+    permission_classes = [PrivateUserPermission]
 
-    serializer_class = UserSerializer
+    serializer_class = DetailUserSerializer
     queryset = User.objects.all()
 
 @api_view(['POST'])
@@ -30,9 +32,9 @@ def follow_user(request, pk, *args, **kwargs):
     selected_user = User.objects.get(pk=pk)
 
     if selected_user.id == user.id:
-        return Response({'message': 'Can\'t unfollow yourself.' if undo else 'Can\'t follow yourself.'}, status=403)
+        return Response({'message': 'Can\'t unfollow yourself.' if undo else 'Can\'t follow yourself.'}, status=400)
     if (selected_user in user.following.all() and not undo) or (undo and selected_user not in user.following.all()):
-        return Response({'message': 'Not following user.' if undo else 'Already following user.'}, status=403)
+        return Response({'message': 'Not following user.' if undo else 'Already following user.'}, status=400)
 
     if undo:
         user.following.remove(selected_user)
@@ -50,3 +52,10 @@ class UserPostListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         return Post.objects.filter(author_id=self.kwargs.get('pk'))
+
+
+class Register(generics.CreateAPIView):
+    permission_classes = [RegisterPermission]
+
+    serializer_class = RegisterSerializer
+    queryset = User.objects.all()

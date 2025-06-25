@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .serializer import PostSerializer, DetailPostSerializer, CommentSerializer, DetailCommentSerializer, TagSerializer
 from .models import Post, Comment, Tag
 from user.models import User
-from .permissions import CreatePermission, EditPermission, ListCommentPermission, DetailCommentPermission
+from .permissions import CreatePermission, EditPermission, ListPrivatePermission, DetailPrivatePermission
 from .methods import get_posts
 
 from django.db.models import F
@@ -19,7 +19,7 @@ class PostListCreateAPIView(generics.ListCreateAPIView):
     queryset = Post.objects.all()
 
     def get_queryset(self):
-        return get_posts(self.request.user)
+        return super().get_queryset() if self.request.user.is_superuser else get_posts(self.request.user)
 
 
 class PostRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateAPIView):
@@ -29,7 +29,7 @@ class PostRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateAPIView):
     queryset = Post.objects.all()
 
     def get_queryset(self):
-        return get_posts(self.request.user)
+        return super().get_queryset() if self.request.user.is_superuser else get_posts(self.request.user)
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
@@ -39,7 +39,7 @@ class PostRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateAPIView):
         return super().get(request, *args, **kwargs)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, ListPrivatePermission])
 def post_up_vote(request, pk, *args, **kwargs):
     undo = request.data.get('undo')
     post = Post.objects.get(pk=pk)
@@ -63,7 +63,7 @@ def post_up_vote(request, pk, *args, **kwargs):
     return Response({'message': 'success'}, status=200)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAuthenticated, ListPrivatePermission])
 def post_down_vote(request, pk, *args, **kwargs):
     undo = request.data.get('undo')
     post = Post.objects.get(pk=pk)
@@ -88,7 +88,7 @@ def post_down_vote(request, pk, *args, **kwargs):
 
 
 class CommentListCreateAPIView(generics.ListCreateAPIView):
-    permission_classes = [CreatePermission, ListCommentPermission]
+    permission_classes = [CreatePermission, ListPrivatePermission]
 
     serializer_class = CommentSerializer
 
@@ -101,13 +101,13 @@ class CommentListCreateAPIView(generics.ListCreateAPIView):
         serializer.save(post_id=post_id)
 
 class CommentRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
-    permission_classes = [EditPermission, DetailCommentPermission]
+    permission_classes = [EditPermission, DetailPrivatePermission]
 
     serializer_class = DetailCommentSerializer
     queryset = Comment.objects.all()
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated, DetailCommentPermission])
+@permission_classes([IsAuthenticated, ListPrivatePermission])
 def comment_up_vote(request, com_pk, *args, **kwargs):
     undo = request.data.get('undo')
     comment = Comment.objects.get(pk=com_pk)
@@ -131,7 +131,7 @@ def comment_up_vote(request, com_pk, *args, **kwargs):
     return Response({'message': 'success'}, status=200)
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated, DetailCommentPermission])
+@permission_classes([IsAuthenticated, ListPrivatePermission])
 def comment_down_vote(request, com_pk, *args, **kwargs):
     undo = request.data.get('undo')
     comment = Comment.objects.get(pk=com_pk)

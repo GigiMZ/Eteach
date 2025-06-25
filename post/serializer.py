@@ -4,23 +4,24 @@ from .models import Comment, Post, Tag
 
 
 class PostSerializer(serializers.ModelSerializer):
-    author = serializers.CharField( read_only=True, default=serializers.CurrentUserDefault())
+    author = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    post_author = serializers.SerializerMethodField()
     date = serializers.DateTimeField(read_only=True)
     vote_up = serializers.IntegerField(read_only=True)
     vote_down = serializers.IntegerField(read_only=True)
     views = serializers.IntegerField(read_only=True)
-    tag_names = serializers.SerializerMethodField() # TODO rename
+    tags = serializers.SlugRelatedField(queryset=Tag.objects.all(), many=True, slug_field='name')
 
     image = serializers.ImageField(write_only=True, allow_null=True)
 
     class Meta:
         model = Post
-        fields = ['id', 'author', 'title', 'content', 'image', 'tags', 'tag_names',
+        fields = ['id', 'author', 'post_author', 'title', 'content', 'image', 'tags',
                   'date', 'vote_up', 'vote_down', 'views']
-        extra_kwargs  = {'tags': {'write_only': True}}
 
-    def get_tag_names(self, obj) -> list[str]:
-        return [tag['name']for tag in TagSerializer(instance=obj.tags, many=True).data]
+    def get_post_author(self, obj):
+        return obj.author.username
 
 
 class DetailPostSerializer(serializers.ModelSerializer):
@@ -30,19 +31,15 @@ class DetailPostSerializer(serializers.ModelSerializer):
     vote_down = serializers.IntegerField(read_only=True)
     views = serializers.IntegerField(read_only=True)
     date = serializers.DateTimeField(read_only=True)
-    tag_names = serializers.SerializerMethodField() # TODO rename
+    tags = serializers.SlugRelatedField(queryset=Tag.objects.all(), many=True, slug_field='name')
 
     class Meta:
         model = Post
-        fields = ['id', 'author','title', 'content', 'image', 'tags', 'tag_names',
+        fields = ['id', 'author','title', 'content', 'image', 'tags',
                   'comments', 'date', 'vote_up', 'vote_down', 'views']
-        extra_kwargs = {'tags': {'write_only': True}}
 
     def get_comments(self, obj):
         return CommentSerializer(instance=obj.comments.filter(comment_id=None), many=True).data
-
-    def get_tag_names(self, obj):
-        return [tag['name']for tag in TagSerializer(instance=obj.tags, many=True).data]
 
 
 class CommentSerializer(serializers.ModelSerializer):

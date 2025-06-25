@@ -7,18 +7,17 @@ from .models import User
 from post.models import Post
 from .serializer import UserSerializer, DetailUserSerializer, RegisterSerializer
 from post.serializer import PostSerializer
-from .permissions import (UserCreatePermission, PrivateUserPermission, UserPostPermission,
-                          RegisterPermission)
+from .permissions import PrivateUserPermission, UserPostPermission, RegisterPermission
+
+from django.shortcuts import get_object_or_404
 
 
-class UserListCreateAPIView(generics.ListCreateAPIView):
-    permission_classes = [UserCreatePermission]
-
+class UserListAPIView(generics.ListAPIView):
     serializer_class = UserSerializer
     queryset = User.objects.all()
 
 
-class UserRetrieveUpdateDestroyAPIView(generics.RetrieveAPIView):
+class UserRetrieveAPIView(generics.RetrieveAPIView):
     permission_classes = [PrivateUserPermission]
 
     serializer_class = DetailUserSerializer
@@ -60,3 +59,9 @@ class Register(generics.CreateAPIView):
 
     serializer_class = RegisterSerializer
     queryset = User.objects.all()
+
+class Profile(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = DetailUserSerializer
+
+    def get_object(self):
+        return get_object_or_404(User.objects.all(), pk=self.request.user.pk)

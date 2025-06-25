@@ -14,15 +14,14 @@ class EditPermission(permissions.BasePermission):
         return request.user.is_superuser or request.user == obj.author or request.method in permissions.SAFE_METHODS
 
 
-# Only non-private users posts comments and viewers followers posts comments are visible to viewer
-class ListCommentPermission(permissions.BasePermission):
+# Only non-private users content and viewers followers content is accessible to viewer
+class ListPrivatePermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        return view.kwargs.get('pos_pk') in get_posts(request.user)
+        return view.kwargs.get('pos_pk') in get_posts(request.user) or request.user.is_superuser
 
 
-
-class DetailCommentPermission(permissions.BasePermission):
+# Only non-private users content and viewers followers content is accessible to viewer
+class DetailPrivatePermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        print(obj.post)
-        print(get_posts(request.user))
-        return obj.post in get_posts(request.user)
+        print(obj.post in get_posts(request.user) or request.user.is_superuser)
+        return obj.post in get_posts(request.user) or request.user.is_superuser

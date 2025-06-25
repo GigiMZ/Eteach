@@ -23,5 +23,4 @@ class ListPrivatePermission(permissions.BasePermission):
 # Only non-private users content and viewers followers content is accessible to viewer
 class DetailPrivatePermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        print(obj.post in get_posts(request.user) or request.user.is_superuser)
         return obj.post in get_posts(request.user) or request.user.is_superuser

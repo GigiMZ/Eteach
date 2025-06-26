@@ -1,6 +1,7 @@
 from django.contrib import admin
-from .models import User
 from django.utils.html import format_html
+
+from .models import User
 from .forms import UserAdminForm
 
 

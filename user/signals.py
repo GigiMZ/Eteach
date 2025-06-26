@@ -1,8 +1,9 @@
-from .models import User
-from post.models import Post, Comment
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.db.models import F
+
+from .models import User
+from post.models import Post, Comment
 
 import os
 from dotenv import load_dotenv

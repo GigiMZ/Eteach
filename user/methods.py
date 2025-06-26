@@ -1,4 +1,5 @@
 from .models import User
+
 from django.db.models import QuerySet
 
 

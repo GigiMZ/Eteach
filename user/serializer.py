@@ -32,13 +32,13 @@ class DetailUserSerializer(serializers.ModelSerializer):
         read_only_fields  = ['id', 'username', 'followers', 'following', 'first_name', 'last_name',
                              'email', 'age', 'profile_pic', 'date_joined'] # TODO add last_login for followers
 
-    def get_followers(self, obj):
-        return len(methods.get_followers(obj))
+    def get_followers(self, obj) -> int:
+        return len(methods.get_followers_id(obj))
 
-    def get_following(self, obj):
+    def get_following(self, obj) -> int:
         return len(obj.following.all())
 
-    def get_email(self, obj):
+    def get_email(self, obj) -> str:
         viewer = self.context.get('request').user
         if viewer in obj.following.all() or viewer == obj: return obj.email
         return ""

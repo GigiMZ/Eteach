@@ -68,8 +68,8 @@ class CommentAdminModel(admin.ModelAdmin):
     )
 
     def content_text(self, obj):
-        if len(obj.content) > 15: return obj.content[:15]+"..."
-        return obj.content[:15]
+        link = reverse("admin:post_comment_change", args=[obj.id])
+        return format_html('<a href="{}">{}</a>', link, str(obj))
 
     def post_link(self, obj):
         link = reverse("admin:post_post_change", args=[obj.post.id])
